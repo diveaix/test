@@ -33,13 +33,13 @@
     }
 
     .orb-container {
-      width: 90vw;
-      height: 90vw;
-      max-width: 700px;
-      max-height: 700px;
       position: absolute;
       top: 50%;
       left: 50%;
+      width: 90vmin;
+      height: 90vmin;
+      max-width: 700px;
+      max-height: 700px;
       transform-style: preserve-3d;
       transform: translate(-50%, -50%) rotateX(0deg) rotateY(0deg);
       transition: transform 0.1s linear;
@@ -104,8 +104,8 @@
       }
 
       .orb-container {
-        width: 95vw;
-        height: 95vw;
+        width: 95vmin;
+        height: 95vmin;
       }
 
       .orbit-item img {
@@ -150,14 +150,14 @@
       gyroControls: false,
       minHeight: 200.00,
       minWidth: 200.00,
-      backgroundColor: 0xffffff,
-      skyColor: 0x68b8d7,
-      cloudColor: 0xadcd1e,
-      cloudShadowColor: 0x183550,
-      sunColor: 0xff9919,
-      sunGlareColor: 0xff6633,
-      sunlightColor: 0xff9933,
-      speed: 1
+      backgroundColor: 0xe1f5ff,
+      skyColor: 0xade8ff,
+      cloudColor: 0xffffff,
+      cloudShadowColor: 0x88b8e6,
+      sunColor: 0xff80d5,
+      sunGlareColor: 0xffffff,
+      sunlightColor: 0xffc0cb,
+      speed: 0.5
     });
 
     const orbitContainer = document.getElementById('orbitContainer');
@@ -172,7 +172,8 @@
     ];
 
     const numItems = logos.length;
-    const radius = 380;
+    const screenWidth = window.innerWidth;
+    const radius = screenWidth < 600 ? 180 : 360;
 
     logos.forEach((logo, i) => {
       const angle = (360 / numItems) * i;
@@ -238,4 +239,5 @@
   </script>
 </body>
 </html>
+
 
