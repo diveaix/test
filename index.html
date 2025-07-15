@@ -4,14 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Succinct Ecosystem Orb</title>
-  <link rel="stylesheet" href="style.css" />
   <style>
-    body, html {
+    html, body {
       margin: 0;
       padding: 0;
-      font-family: sans-serif;
       height: 100%;
       overflow: hidden;
+      font-family: sans-serif;
       background: linear-gradient(to bottom right, #e1f5ff, #ffffff);
     }
 
@@ -20,30 +19,47 @@
       width: 100vw;
       height: 100vh;
       perspective: 1200px;
-      overflow: hidden;
-      display: flex;
-      justify-content: center;
-      align-items: center;
     }
 
     .header-logo {
-      position: fixed;
+      position: absolute;
       top: 10px;
       left: 10px;
       width: 160px;
-      height: auto;
-      z-index: 20;
+      z-index: 10;
     }
 
     .orb-container {
+      position: absolute;
+      top: 55%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotateX(0deg) rotateY(0deg);
+      transform-style: preserve-3d;
+      transition: transform 0.1s linear;
       width: 90vmin;
       height: 90vmin;
       max-width: 700px;
       max-height: 700px;
-      position: relative;
+    }
+
+    .orbit-item {
+      position: absolute;
+      top: 50%;
+      left: 50%;
       transform-style: preserve-3d;
-      transform: rotateX(0deg) rotateY(0deg);
-      transition: transform 0.1s linear;
+    }
+
+    .orbit-item img {
+      width: 8vw;
+      max-width: 52px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #fff;
+      transition: transform 0.2s ease;
+      cursor: pointer;
+    }
+
+    .orbit-item img:hover {
+      transform: scale(1.2);
     }
 
     .center-logo-3d {
@@ -56,7 +72,7 @@
       max-height: 90px;
       transform-style: preserve-3d;
       transform: translate(-50%, -50%) rotateY(0deg);
-      animation: spin 10s infinite linear;
+      animation: spin 10s linear infinite;
     }
 
     .face {
@@ -65,8 +81,7 @@
       height: 100%;
       background-image: url("assets/succinct.jpg");
       background-size: cover;
-      background-position: center;
-      border: 2px solid #fff;
+      border: 2px solid white;
     }
 
     .front  { transform: translateZ(45px); }
@@ -76,32 +91,41 @@
     .top    { transform: rotateX(90deg) translateZ(45px); }
     .bottom { transform: rotateX(-90deg) translateZ(45px); }
 
-    .orbit-item {
-      position: absolute;
+    @keyframes spin {
+      from { transform: translate(-50%, -50%) rotateY(0deg); }
+      to   { transform: translate(-50%, -50%) rotateY(360deg); }
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
       top: 50%;
       left: 50%;
-      transform-style: preserve-3d;
-      transform-origin: center;
-    }
-
-    .orbit-item img {
-      width: 8vw;
-      max-width: 52px;
-      height: auto;
+      transform: translate(-50%, -50%);
+      background: white;
       border-radius: 10px;
-      box-shadow: 0 0 10px #fff;
-      transition: transform 0.2s ease;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+      padding: 20px;
+      max-width: 90vw;
+      font-family: monospace;
+      z-index: 999;
     }
 
-    .orbit-item img:hover {
-      transform: scale(1.2);
+    .modal h2 {
+      margin-top: 0;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 8px;
+      right: 12px;
+      font-size: 20px;
+      cursor: pointer;
     }
 
     @media (max-width: 600px) {
       .header-logo {
         width: 130px;
-        top: 8px;
-        left: 8px;
       }
 
       .orbit-item img {
@@ -114,15 +138,11 @@
         height: 16vw;
       }
     }
-
-    @keyframes spin {
-      from { transform: translate(-50%, -50%) rotateY(0deg); }
-      to   { transform: translate(-50%, -50%) rotateY(360deg); }
-    }
   </style>
 </head>
 <body>
   <img src="assets/succinct-logo.webp" alt="Succinct Logo" class="header-logo" />
+
   <div class="scene" id="scene">
     <div class="orb-container" id="orbitContainer">
       <div class="center-logo-3d">
@@ -136,6 +156,13 @@
     </div>
   </div>
 
+  <div class="modal" id="infoModal">
+    <span class="modal-close" onclick="closeModal()">&times;</span>
+    <h2 id="modalTitle">Title</h2>
+    <p id="modalDescription">Description</p>
+    <a href="#" id="modalLink" target="_blank">Link</a>
+  </div>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.clouds.min.js"></script>
   <script>
@@ -146,44 +173,261 @@
       gyroControls: false,
       minHeight: 200.00,
       minWidth: 200.00,
-      backgroundColor: 0xe1f5ff,
-      skyColor: 0xade8ff,
-      cloudColor: 0xffffff,
-      cloudShadowColor: 0x88b8e6,
-      sunColor: 0xff80d5,
-      sunGlareColor: 0xffffff,
-      sunlightColor: 0xffc0cb,
+      backgroundColor: 0xffffff,
+      skyColor: 0x68b8d7,
+      cloudColor: 0xadc1de,
+      cloudShadowColor: 0x183550,
+      sunColor: 0xff9919,
+      sunGlareColor: 0xff6633,
+      sunlightColor: 0xff9933,
       speed: 0.5
     });
 
-    const orbitContainer = document.getElementById('orbitContainer');
     const logos = [
       "across.jpg", "alchemy.jpg", "alpen.jpg", "altlayer.jpg", "automata.png", "avail.jpg",
       "babylon.jpg", "caldera.jpg", "celestia.png", "celo.jpg", "conduit.jpg", "cosmos.png",
       "eigen.jpg", "electron.jpg", "fiamma.jpg", "galxe.jpg", "gelato.jpg", "herodotus.jpg",
       "hibachi.jpg", "hyli.jpg", "katana.jpg", "kroma.jpg", "lido.jpg", "magic.jpg", "mantle.jpg",
       "morph.jpg", "mynt.jpg", "nebra.jpg", "nubit.jpg", "phala.jpg", "polygon.jpg", "rift.jpg",
-      "scalerize.png", "soveriegn.jpg", "succinct.jpg", "taiko.png", "termina.jpg",
+      "scalerize.png", "soveriegn.jpg", "taiko.png", "termina.jpg",
       "twine.jpg", "world.jpg", "zerosync.jpg"
     ];
 
+    const infoData = {
+      "across": {
+        title: "Across",
+        description: "Across is using SP1 in Across v4, their next-gen bridging protocol. They're using ZK and intents to deploy to new chains like BNB much more quickly.",
+        link: "https://across.to"
+      },
+      "alchemy": {
+        title: "Alchemy",
+        description: "Alchemy offers a complete rollup-as-a-service platform. Their rollups can adopt ZK proofs through OP Succinct.",
+        link: "https://www.alchemy.com/"
+      },
+      "alpen": {
+    title: "Alpen",
+    description: "Alpen is building a programmable future for Bitcoin. They use SP1 to power their ZK-enabled infrastructure.",
+    link: "https://www.alpenlabs.io/",
+  },
+  "altlayer": {
+    title: "AltLayer",
+    description: "AltLayer accelerates Web3 scaling through their rollup-as-a-service platform. They use OP Succinct to provide ZK for their rollups.",
+    link: "https://www.altlayer.io/",
+  },
+  "automata": {
+    title: "Automata",
+    description: "Automata is building a machine attestation layer. They use SP1 in production for gas-efficient TEE attestations.",
+    link: "https://www.ata.network/",
+  },
+  "avail": {
+    title: "Avail",
+    description: "Avail is building the Unification Layer for Web3. They use SP1 to secure their production DA and token bridges that connect Avail to Ethereum.",
+    link: "https://www.availproject.org/",
+  },
+  "babylon": {
+    title: "Babylon",
+    description: "Babylon is building trust-minimized liquid staking and a bridging protocol. They use SP1 to build a trust-minimized Bitcoin and Cosmos light client that enables users to withdraw from the Babylon chain to Bitcoin.",
+    link: "https://babylonlabs.io/",
+  },
+  "caldera": {
+    title: "Caldera",
+    description: "Caldera is a rollup-as-a-service platform that offers improved interop through the Caldera Metalayer. They offer an OP Succinct integration to customers who want ZK proofs.",
+    link: "https://www.caldera.xyz/",
+  },
+  "celestia": {
+    title: "Celestia",
+    description: "Celestia is building modular solutions for the full blockchain stack. They use SP1 to secure the production Blobstream DA bridge, which connects Celestia to settlement layers like Ethereum.",
+    link: "https://celestia.org"
+  },
+  "celo": {
+    title: "Celo",
+    description: "Celo is building a chain for global payments. They are using OP Succinct Lite and EigenDA to deliver ZK fault proofs that decentralize their chain.",
+    link: "https://celo.org"
+  },
+  "conduit": {
+    title: "Conduit",
+    description: "Conduit is a leading rollup-as-a-service platform that helps teams customize, deploy, and scale their chains. They provide ZK proofs through OP Succinct.",
+    link: "https://www.conduit.xyz/"
+  },
+  "cosmos": {
+    title: "Cosmos",
+    description: "Interchain, the developers behind CosmosSDK, are using SP1 to power the next generation of interoperability, IBC v2. With v2, you can now transact using IBC from Cosmos to Ethereum.",
+    link: "https://cosmos.network/"
+  },
+  "eigen": {
+    title: "EigenLayer",
+    description: "EigenLayer is powering infinite scalability for blockchains. They offer a DA option for rollups on OP Succinct.",
+    link: "https://www.eigenlayer.xyz/"
+  },
+  "electron": {
+    title: "Electron",
+    description: "Electron is making ZK accessible to all developers. Their proof aggregation layer, Quantum, reduces on-chain verification costs.",
+    link: "https://electron.dev/"
+  },
+  "fiamma": {
+    title: "Fiamma",
+    description: "Fiamma builds secure, seamless Bitcoin gateways via BitVM solutions. Users access infinite earning and liquidity opportunities with BTC more smoothly than ever. Using Succinct's Groth16 proofs, Fiamma delivers the most secure, efficient native Bitcoin bridging.",
+    link: "https://fiammalabs.io/"
+  },
+  "galxe": {
+    title: "Galxe",
+    description: "Galxe is onboarding the world to Web3. They use SP1 in production to power their verifiable raffles.",
+    link: "https://www.galxe.com/"
+  },
+  "gelato": {
+    title: "Gelato",
+    description: "Gelato deploys and scales chains through their rollup-as-a-service platform. They offer OP Succinct to chains who want to add ZK proofs to their stack.",
+    link: "https://www.gelato.network/"
+  },
+  "herodotus": {
+    title: "Herodotus",
+    description: "Herodotus is building a ZK coprocessor that uses SP1. This allows developers to perform powerful computations on massive amounts of onchain data.",
+    link: "https://herodotus.dev/"
+  },
+  "hibachi": {
+    title: "Hibachi",
+    description: "Hibachi is building the endgame exchange. They're using SP1 to prove their CLOB, creating a fast and private trading experience.",
+    link: "http://hibachi.xyz"
+  },
+  "hyli": {
+    title: "Hylé",
+    description: "Hylé is a framework for building provable applications. They use SP1 to generate proofs.",
+    link: "https://www.hyle.eu/"
+  },
+  "katana": {
+    title: "Katana",
+    description: "Katana is Polygon's flagship DeFi L2. They use a custom version of OP Succinct that connects to the Agglayer to achieve lightning-fast finality.",
+    link: "https://katana.network"
+  },
+  "kroma": {
+    title: "Kroma",
+    description: "Kroma is building a hub for Web3 games. They are using OP Succinct to scale their fraud proof system.",
+    link: "https://kroma.network/"
+  },
+  "lido": {
+    title: "Lido",
+    description: "Lido is the largest liquid staking protocol. They use SP1 as a ZK coprocessor to trustlessly secure their Accounting Oracle.",
+    link: "https://lido.fi/"
+  },
+  "magic": {
+    title: "Magic Newton",
+    description: "Newton is building AI agents that automate onchain financial actions. They are using SP1 to verify agent actions.",
+    link: "https://www.magicnewton.com/"
+  },
+  "mantle": {
+    title: "Mantle",
+    description: "Mantle is a leading L2 with institutional-grade functionality. They are using OP Succinct to become a ZK rollup.",
+    link: "https://www.mantle.xyz/"
+  },
+  "morph": {
+    title: "MorphL2",
+    description: "Morph is building the global consumer layer. They use SP1 in production to power their ZK fault proofs.",
+    link: "https://www.morphl2.io/"
+  },
+  "mynt": {
+    title: "Mynt",
+    description: "Mynt is building USDm, a ZK-native stablecoin. They use SP1 to generate proofs of USDm balances, allowing users to interact with DeFi protocols without transferring tokens.",
+    link: "https://myntusd.com/"
+  },
+  "nebra": {
+    title: "Nebra",
+    description: "Nebra is working on technology to enable the mass adoption of ZK proofs. They use SP1 in their proof aggregation protocol to reduce proving costs.",
+    link: "https://nebra.one/"
+  },
+  "nubit": {
+    title: "Nubit",
+    description: "Nubit is building Goldinals, a trust-minimized fungible token standard on Bitcoin that relies on BitVM and SP1.",
+    link: "https://www.nubit.org/"
+  },
+  "phala": {
+    title: "Phala Network",
+    description: "Phala is pioneering the future of verifiable AI agents. They use OP Succinct to prove their mainnet blocks.",
+    link: "https://phala.network/"
+  },
+  "polygon": {
+    title: "Polygon",
+    description: "Polygon is building the end game for Ethereum scaling. They are using SP1 to build the AggLayer, a unification layer for sovereign chains.",
+    link: "https://polygon.technology/"
+  },
+  "rift": {
+    title: "Rift",
+    description: "Rift is building the first trustless Bitcoin exchange. They use SP1 in production to verify cross-chain swaps.",
+    link: "https://www.rift.exchange/"
+  },
+  "scalerize": {
+    title: "Scalerize",
+    description: "Scalerize is building a based rollup stack on Solana. With SP1-powered fault proofs, their stack is able to support multiple execution environments at scale.",
+    link: "https://scalerize.xyz/"
+  },
+  "soveriegn": {
+    title: "Sovereign",
+    description: "Sovereign is building an application-specific rollup-development toolchain. Their SDK supports SP1 as a primary zkVM prover for securing these rollups.",
+    link: "https://www.sovereign.xyz/"
+  },
+  "taiko": {
+    title: "Taiko",
+    description: "Taiko is a based rollup that is scaling Ethereum with ZK proofs. They use SP1 in a multi-proof setup to prove their mainnet blocks.",
+    link: "https://taiko.xyz/"
+  },
+  "termina": {
+    title: "Termina",
+    description: "Termina is accelerating Solana scaling. They are building a zero-knowledge SVM with SP1.",
+    link: "https://www.termina.technology/"
+  },
+  "twine": {
+    title: "Twine",
+    description: "Twine is building the first ZK light client for Solana with SP1, enabling trust-minimized bridging from Solana to other chains.",
+    link: "https://twinelabs.xyz/"
+  },
+  "world": {
+    title: "World",
+    description: "World is building a human-centered blockchain. They used OP Succinct in a ZK pilot that demonstrated that Succinct can scale to the largest rollups.",
+    link: "https://world.org/world-chain"
+  },
+  "zerosync": {
+    title: "ZeroSync",
+    description: "ZeroSync is developing the BitVM protocol and building zkCoins. The latter is a novel blockchain design that with strong privacy and scalability through client-side validation with ZKPs powered by SP1.",
+    link: "https://zerosync.org/"
+  }
+};
+
+
+    const orbitContainer = document.getElementById("orbitContainer");
     const numItems = logos.length;
     const screenWidth = window.innerWidth;
     const radius = screenWidth < 600 ? 180 : 360;
 
     logos.forEach((logo, i) => {
       const angle = (360 / numItems) * i;
-      const item = document.createElement('div');
-      item.className = 'orbit-item';
+      const item = document.createElement("div");
+      item.className = "orbit-item";
       item.style.transform = `rotateY(${angle}deg) translateZ(${radius}px)`;
 
-      const img = document.createElement('img');
+      const img = document.createElement("img");
       img.src = `assets/${logo}`;
-      img.alt = logo.split('.')[0];
+      const id = logo.split(".")[0];
+      img.alt = id;
+      img.onclick = () => openModal(id);
+
       item.appendChild(img);
       orbitContainer.appendChild(item);
     });
 
+    function openModal(id) {
+      const data = infoData[id];
+      if (!data) return;
+      document.getElementById("modalTitle").textContent = data.title;
+      document.getElementById("modalDescription").textContent = data.description;
+      document.getElementById("modalLink").textContent = data.link;
+      document.getElementById("modalLink").href = data.link;
+      document.getElementById("infoModal").style.display = "block";
+    }
+
+    function closeModal() {
+      document.getElementById("infoModal").style.display = "none";
+    }
+
+    // Drag Rotate Logic
     let isDragging = false;
     let lastX, lastY;
     let rotationX = 0;
@@ -192,49 +436,49 @@
     const updateRotation = (dx, dy) => {
       rotationY += dx * 0.4;
       rotationX -= dy * 0.4;
-      orbitContainer.style.transform = `rotateX(${rotationX}deg) rotateY(${rotationY}deg)`;
+      orbitContainer.style.transform = `translate(-50%, -50%) rotateX(${rotationX}deg) rotateY(${rotationY}deg)`;
     };
 
-    document.getElementById('scene').addEventListener('mousedown', (e) => {
+    document.getElementById("scene").addEventListener("mousedown", (e) => {
       isDragging = true;
       lastX = e.clientX;
       lastY = e.clientY;
     });
 
-    window.addEventListener('mouseup', () => {
-      isDragging = false;
-    });
-
-    window.addEventListener('mousemove', (e) => {
+    window.addEventListener("mouseup", () => isDragging = false);
+    window.addEventListener("mousemove", (e) => {
       if (!isDragging) return;
-      const dx = e.clientX - lastX;
-      const dy = e.clientY - lastY;
-      updateRotation(dx, dy);
+      updateRotation(e.clientX - lastX, e.clientY - lastY);
       lastX = e.clientX;
       lastY = e.clientY;
     });
 
-    document.getElementById('scene').addEventListener('touchstart', (e) => {
+    // Touch support
+    document.getElementById("scene").addEventListener("touchstart", (e) => {
       isDragging = true;
       lastX = e.touches[0].clientX;
       lastY = e.touches[0].clientY;
     });
 
-    window.addEventListener('touchend', () => {
-      isDragging = false;
-    });
-
-    window.addEventListener('touchmove', (e) => {
+    window.addEventListener("touchend", () => isDragging = false);
+    window.addEventListener("touchmove", (e) => {
       if (!isDragging) return;
-      const dx = e.touches[0].clientX - lastX;
-      const dy = e.touches[0].clientY - lastY;
-      updateRotation(dx, dy);
+      updateRotation(e.touches[0].clientX - lastX, e.touches[0].clientY - lastY);
       lastX = e.touches[0].clientX;
       lastY = e.touches[0].clientY;
     });
   </script>
+  <footer style="position: absolute; bottom: 10px; width: 100%; text-align: center; font-family: monospace; font-size: 14px; color: #333;">
+    <p>
+      <a href="https://x.com/Diveaix" target="_blank" style="text-decoration: none; color: #000;">@Diveaix</a>
+      proving LUV towards
+      <a href="https://x.com/SuccinctLabs" target="_blank" style="text-decoration: none; color: #000;">@SuccinctLabs</a>
+    </p>
+  </footer>
+  
 </body>
 </html>
+
 
 
 
