@@ -13,7 +13,6 @@
       height: 100%;
       overflow: hidden;
       background: linear-gradient(to bottom right, #e1f5ff, #ffffff);
-      overscroll-behavior: none;
     }
 
     .scene {
@@ -22,10 +21,13 @@
       height: 100vh;
       perspective: 1200px;
       overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
 
     .header-logo {
-      position: absolute;
+      position: fixed;
       top: 10px;
       left: 10px;
       width: 160px;
@@ -38,11 +40,9 @@
       height: 90vmin;
       max-width: 700px;
       max-height: 700px;
-      position: absolute;
-      top: 50%;
-      left: 50%;
+      position: relative;
       transform-style: preserve-3d;
-      transform: translate(-50%, -50%) rotateX(0deg) rotateY(0deg);
+      transform: rotateX(0deg) rotateY(0deg);
       transition: transform 0.1s linear;
     }
 
@@ -113,10 +113,6 @@
         width: 16vw;
         height: 16vw;
       }
-
-      .orb-container {
-        top: 58%;
-      }
     }
 
     @keyframes spin {
@@ -173,7 +169,7 @@
 
     const numItems = logos.length;
     const screenWidth = window.innerWidth;
-    const radius = screenWidth < 600 ? 140 : 360;
+    const radius = screenWidth < 600 ? 180 : 360;
 
     logos.forEach((logo, i) => {
       const angle = (360 / numItems) * i;
@@ -239,5 +235,6 @@
   </script>
 </body>
 </html>
+
 
 
