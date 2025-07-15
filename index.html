@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Succinct Ecosystem Orb</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      overflow: hidden;
+      background: none;
+    }
+
+    .header-logo {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      width: 150px;
+      height: auto;
+      z-index: 10;
+    }
+
+    .scene {
+      width: 100vw;
+      height: 100vh;
+      perspective: 1200px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .orb-container {
+      width: 80vw;
+      height: 80vw;
+      max-width: 800px;
+      max-height: 800px;
+      position: relative;
+      transform-style: preserve-3d;
+      transform: rotateX(0deg) rotateY(0deg);
+      transition: transform 0.1s linear;
+    }
+
+    .center-logo-3d {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 10vw;
+      height: 10vw;
+      max-width: 80px;
+      max-height: 80px;
+      transform-style: preserve-3d;
+      transform: translate(-50%, -50%) rotateY(0deg);
+      animation: spin 10s infinite linear;
+    }
+
+    .face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background-image: url("assets/succinct.jpg");
+      background-size: cover;
+      background-position: center;
+      border: 2px solid #fff;
+      opacity: 1;
+    }
+
+    .front  { transform: translateZ(40px); }
+    .back   { transform: rotateY(180deg) translateZ(40px); }
+    .left   { transform: rotateY(-90deg) translateZ(40px); }
+    .right  { transform: rotateY(90deg) translateZ(40px); }
+    .top    { transform: rotateX(90deg) translateZ(40px); }
+    .bottom { transform: rotateX(-90deg) translateZ(40px); }
+
+    @keyframes spin {
+      from { transform: translate(-50%, -50%) rotateY(0deg); }
+      to   { transform: translate(-50%, -50%) rotateY(360deg); }
+    }
+
+    .orbit-item {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform-style: preserve-3d;
+      transform-origin: center;
+    }
+
+    .orbit-item img {
+      width: 8vw;
+      max-width: 50px;
+      height: auto;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #fff;
+      transition: transform 0.2s ease;
+    }
+
+    .orbit-item img:hover {
+      transform: scale(1.2);
+    }
+
+    @media (max-width: 600px) {
+      .header-logo {
+        width: 140px;
+        top: 10px;
+        left: 10px;
+      }
+      .orb-container {
+        width: 90vw;
+        height: 90vw;
+      }
+      .orbit-item img {
+        width: 10vw;
+        max-width: 40px;
+      }
+      .center-logo-3d {
+        width: 12vw;
+        height: 12vw;
+      }
+    }
+  </style>
+</head>
+<body>
+  <img src="assets/succinct-logo.webp" alt="Succinct Logo" class="header-logo" />
+  <div class="scene" id="scene">
+    <div class="orb-container" id="orbitContainer">
+      <div class="center-logo-3d">
+        <div class="face front"></div>
+        <div class="face back"></div>
+        <div class="face left"></div>
+        <div class="face right"></div>
+        <div class="face top"></div>
+        <div class="face bottom"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.clouds.min.js"></script>
+  <script>
+    VANTA.CLOUDS({
+      el: "#scene",
+      mouseControls: true,
+      touchControls: true,
+      gyroControls: false,
+      minHeight: 200.00,
+      minWidth: 200.00,
+      skyColor: 0xcce7ff,
+      cloudColor: 0xffffff,
+      cloudShadowColor: 0x8db6ff,
+      sunColor: 0xff00ff,
+      sunGlareColor: 0xffffff,
+      sunlightColor: 0xffb6ff,
+      speed: 0.5
+    });
+
+    const orbitContainer = document.getElementById('orbitContainer');
+    const logos = [
+      "across.jpg", "alchemy.jpg", "alpen.jpg", "altlayer.jpg", "automata.png", "avail.jpg",
+      "babylon.jpg", "caldera.jpg", "celestia.png", "celo.jpg", "conduit.jpg", "cosmos.png",
+      "eigen.jpg", "electron.jpg", "fiamma.jpg", "galxe.jpg", "gelato.jpg", "herodotus.jpg",
+      "hibachi.jpg", "hyli.jpg", "katana.jpg", "kroma.jpg", "lido.jpg", "magic.jpg", "mantle.jpg",
+      "morph.jpg", "mynt.jpg", "nebra.jpg", "nubit.jpg", "phala.jpg", "polygon.jpg", "rift.jpg",
+      "scalerize.png", "soveriegn.jpg", "succinct.jpg", "taiko.png", "termina.jpg",
+      "twine.jpg", "world.jpg", "zerosync.jpg"
+    ];
+
+    const numItems = logos.length;
+    const radius = 380;
+
+    logos.forEach((logo, i) => {
+      const angle = (360 / numItems) * i;
+      const item = document.createElement('div');
+      item.className = 'orbit-item';
+      item.style.transform = `rotateY(${angle}deg) translateZ(${radius}px)`;
+
+      const img = document.createElement('img');
+      img.src = `assets/${logo}`;
+      img.alt = logo.split('.')[0];
+      item.appendChild(img);
+      orbitContainer.appendChild(item);
+    });
+
+    let isDragging = false;
+    let lastX, lastY;
+    let rotationX = 0;
+    let rotationY = 0;
+
+    const updateRotation = (dx, dy) => {
+      rotationY += dx * 0.4;
+      rotationX -= dy * 0.4;
+      orbitContainer.style.transform = `rotateX(${rotationX}deg) rotateY(${rotationY}deg)`;
+    };
+
+    document.getElementById('scene').addEventListener('mousedown', (e) => {
+      isDragging = true;
+      lastX = e.clientX;
+      lastY = e.clientY;
+    });
+
+    window.addEventListener('mouseup', () => {
+      isDragging = false;
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      const dx = e.clientX - lastX;
+      const dy = e.clientY - lastY;
+      updateRotation(dx, dy);
+      lastX = e.clientX;
+      lastY = e.clientY;
+    });
+
+    document.getElementById('scene').addEventListener('touchstart', (e) => {
+      isDragging = true;
+      lastX = e.touches[0].clientX;
+      lastY = e.touches[0].clientY;
+    });
+
+    window.addEventListener('touchend', () => {
+      isDragging = false;
+    });
+
+    window.addEventListener('touchmove', (e) => {
+      if (!isDragging) return;
+      const dx = e.touches[0].clientX - lastX;
+      const dy = e.touches[0].clientY - lastY;
+      updateRotation(dx, dy);
+      lastX = e.touches[0].clientX;
+      lastY = e.touches[0].clientY;
+    });
+  </script>
+</body>
+</html>
